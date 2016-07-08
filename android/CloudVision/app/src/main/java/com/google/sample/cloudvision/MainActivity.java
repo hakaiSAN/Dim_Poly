@@ -17,6 +17,7 @@
 package com.google.sample.cloudvision;
 
 import android.Manifest;
+import android.app.ActionBar;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -32,6 +33,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,6 +56,17 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.io.FileInputStream;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import android.os.Environment;
+import android.widget.LinearLayout.LayoutParams;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -193,32 +206,33 @@ public class MainActivity extends AppCompatActivity {
 
                     BatchAnnotateImagesRequest batchAnnotateImagesRequest =
                             new BatchAnnotateImagesRequest();
-                    batchAnnotateImagesRequest.setRequests(new ArrayList<AnnotateImageRequest>() {{
-                        AnnotateImageRequest annotateImageRequest = new AnnotateImageRequest();
+                    batchAnnotateImagesRequest.setRequests(new ArrayList<AnnotateImageRequest>() {
+                        {
+                            AnnotateImageRequest annotateImageRequest = new AnnotateImageRequest();
 
-                        // Add the image
-                        Image base64EncodedImage = new Image();
-                        // Convert the bitmap to a JPEG
-                        // Just in case it's a format that Android understands but Cloud Vision
-                        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 90, byteArrayOutputStream);
-                        byte[] imageBytes = byteArrayOutputStream.toByteArray();
+                            // Add the image
+                            Image base64EncodedImage = new Image();
+                            // Convert the bitmap to a JPEG
+                            // Just in case it's a format that Android understands but Cloud Vision
+                            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, byteArrayOutputStream);
+                            byte[] imageBytes = byteArrayOutputStream.toByteArray();
 
-                        // Base64 encode the JPEG
-                        base64EncodedImage.encodeContent(imageBytes);
-                        annotateImageRequest.setImage(base64EncodedImage);
+                            // Base64 encode the JPEG
+                            base64EncodedImage.encodeContent(imageBytes);
+                            annotateImageRequest.setImage(base64EncodedImage);
 
-                        // add the features we want
-                        annotateImageRequest.setFeatures(new ArrayList<Feature>() {{
-                            Feature labelDetection = new Feature();
-                            labelDetection.setType("LABEL_DETECTION");
-                            labelDetection.setMaxResults(10);
-                            add(labelDetection);
+                            // add the features we want
+                            annotateImageRequest.setFeatures(new ArrayList<Feature>() {{
+                                Feature labelDetection = new Feature();
+                                labelDetection.setType("LABEL_DETECTION");
+                                labelDetection.setMaxResults(10);
+                                add(labelDetection);
+                            }});
+
+                            // Add the list of one thing to the request
+                            add(annotateImageRequest);
                         }});
-
-                        // Add the list of one thing to the request
-                        add(annotateImageRequest);
-                    }});
 
                     Vision.Images.Annotate annotateRequest =
                             vision.images().annotate(batchAnnotateImagesRequest);
@@ -227,7 +241,8 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "created Cloud Vision request object, sending request");
 
                     BatchAnnotateImagesResponse response = annotateRequest.execute();
-                    return convertResponseToString(response);
+                    return response.toString();
+//                    return convertResponseToString(response);
 
                 } catch (GoogleJsonResponseException e) {
                     Log.d(TAG, "failed to make API request because " + e.getContent());
@@ -240,6 +255,31 @@ public class MainActivity extends AppCompatActivity {
 
             protected void onPostExecute(String result) {
                 mImageDetails.setText(result);
+
+                mImageDetails.setText(result);
+                ScrollView scrollView = new ScrollView(this);
+                scrollView.addView(mImageDetails);
+                setContentView(scrollView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+
+                /*
+                // ファイルの読み込み
+                InputStream input;
+                try {
+                    // データ追加
+                    JSONArray jsonArray = jsonObject.getJSONArray("Employee");
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject jsonOneRecord = jsonArray.getJSONObject(i);
+                        Log.v("mytag", jsonOneRecord.getString("Name"));
+                        Log.v("mytag", String.valueOf(jsonOneRecord.getInt("Age")));
+                    }
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                */
             }
         }.execute();
     }
