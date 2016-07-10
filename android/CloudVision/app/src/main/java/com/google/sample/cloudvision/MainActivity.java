@@ -18,6 +18,7 @@ package com.google.sample.cloudvision;
 
 import android.Manifest;
 import android.app.ActionBar;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -53,6 +54,7 @@ import com.google.api.services.vision.v1.model.Image;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,11 +69,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import android.os.Environment;
 import android.widget.LinearLayout.LayoutParams;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 public class MainActivity extends AppCompatActivity {
 
     // please your cloud vision api key
-    private static final String CLOUD_VISION_API_KEY = " ";
+    private static final String CLOUD_VISION_API_KEY = "";
 
     public static final String FILE_NAME = "temp.jpg";
 
@@ -193,6 +197,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Do the real work in an async task, because we need to use the network anyway
         new AsyncTask<Object, Void, String>() {
+/*
             @Override
             protected String doInBackground(Object... params) {
                 try {
@@ -225,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
                             // add the features we want
                             annotateImageRequest.setFeatures(new ArrayList<Feature>() {{
                                 Feature labelDetection = new Feature();
-                                labelDetection.setType("LABEL_DETECTION");
+                                labelDetection.setType("FACE_DETECTION");
                                 labelDetection.setMaxResults(10);
                                 add(labelDetection);
                             }});
@@ -252,19 +257,23 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return "Cloud Vision API request failed. Check logs for details.";
             }
+*/
 
             protected void onPostExecute(String result) {
-                mImageDetails.setText(result);
+//                mImageDetails.setText(result);
 
-                mImageDetails.setText(result);
-                ScrollView scrollView = new ScrollView(this);
-                scrollView.addView(mImageDetails);
-                setContentView(scrollView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+                //json file saved
+//                saveFile("output.json", result);
+
+                //read the json file
+                //for debug
+                mImageDetails.setText(readFile("output.json"));
+
 
                 /*
                 // ファイルの読み込み
                 InputStream input;
-                try {
+                try {k
                     // データ追加
                     JSONArray jsonArray = jsonObject.getJSONArray("Employee");
                     for (int i = 0; i < jsonArray.length(); i++) {
@@ -319,4 +328,37 @@ public class MainActivity extends AppCompatActivity {
 
         return message;
     }
+    // ファイルを保存
+    public void saveFile(String file, String str) {
+        FileOutputStream fileOutputstream = null;
+
+        try {
+            fileOutputstream = openFileOutput(file, Context.MODE_PRIVATE);
+            fileOutputstream.write(str.getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    // ファイルを読み出し
+    public String readFile(String file) {
+        FileInputStream fileInputStream;
+        String text = null;
+
+        try {
+            fileInputStream = openFileInput(file);
+            String lineBuffer = null;
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(fileInputStream, "UTF-8"));
+            while ((lineBuffer = reader.readLine()) != null) {
+                text = lineBuffer;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return text;
+    }
 }
+
+
