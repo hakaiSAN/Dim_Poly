@@ -70,7 +70,7 @@ import java.net.URL;
 public class MainActivity extends AppCompatActivity {
 
     // please your cloud vision api key
-    private static final String CLOUD_VISION_API_KEY = " ";
+    private static final String CLOUD_VISION_API_KEY = "AIzaSyATW-YVZgslN8BOGvXhHrM6jSOtElsVFUE";
 
     public static final String FILE_NAME = "temp.jpg";
 
@@ -223,8 +223,8 @@ public class MainActivity extends AppCompatActivity {
                         // add the features we want
                         annotateImageRequest.setFeatures(new ArrayList<Feature>() {{
                             Feature faceDetection = new Feature();
-                            faceDetection.setType("LANDMARK_DETECTION");
-                            faceDetection.setMaxResults(36);
+                            faceDetection.setType("LABEL_DETECTION");
+                            faceDetection.setMaxResults(3);
                             add(faceDetection);
                         }});
 
@@ -277,10 +277,11 @@ public class MainActivity extends AppCompatActivity {
         return Bitmap.createScaledBitmap(bitmap, resizedWidth, resizedHeight, false);
     }
 
+    //ここもいじらないといけない
     private String convertResponseToString(BatchAnnotateImagesResponse response) {
         String message = "I found these things:\n\n";
 
-        List<EntityAnnotation> labels = response.getResponses().get(0).getLabelAnnotations();
+        List<EntityAnnotation> labels = response.getResponses().get(0).getFaceAnnotations();
         if (labels != null) {
             for (EntityAnnotation label : labels) {
                 message += String.format("%.3f: %s", label.getScore(), label.getDescription());
