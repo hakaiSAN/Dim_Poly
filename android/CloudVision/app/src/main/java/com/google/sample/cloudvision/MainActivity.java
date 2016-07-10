@@ -70,7 +70,7 @@ import java.net.URL;
 public class MainActivity extends AppCompatActivity {
 
     // please your cloud vision api key
-    private static final String CLOUD_VISION_API_KEY = "AIzaSyATW-YVZgslN8BOGvXhHrM6jSOtElsVFUE";
+    private static final String CLOUD_VISION_API_KEY = "";
 
     public static final String FILE_NAME = "temp.jpg";
 
