@@ -75,7 +75,7 @@ import java.io.InputStreamReader;
 public class MainActivity extends AppCompatActivity {
 
     // please your cloud vision api key
-    private static final String CLOUD_VISION_API_KEY = "";
+    private static final String CLOUD_VISION_API_KEY = "AIzaSyATW-YVZgslN8BOGvXhHrM6jSOtElsVFUE";
 
     public static final String FILE_NAME = "temp.jpg";
 
@@ -197,9 +197,9 @@ public class MainActivity extends AppCompatActivity {
 
         // Do the real work in an async task, because we need to use the network anyway
         new AsyncTask<Object, Void, String>() {
-/*
             @Override
             protected String doInBackground(Object... params) {
+/*
                 try {
                     HttpTransport httpTransport = AndroidHttp.newCompatibleTransport();
                     JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
@@ -256,8 +256,8 @@ public class MainActivity extends AppCompatActivity {
                             e.getMessage());
                 }
                 return "Cloud Vision API request failed. Check logs for details.";
+*/              return "";
             }
-*/
 
             protected void onPostExecute(String result) {
 //                mImageDetails.setText(result);
