@@ -253,10 +253,7 @@ public class MainActivity extends AppCompatActivity {
 //                    return response.toString(); //json file
 
 //                    return convertResponseToString(response); //default
-                    Log.d(TAG, "list make");
-                    String temp = extractionface(response);
-                    Log.d(TAG, "list return");
-                    return temp;
+                    return extractionface(response);
 
                 } catch (GoogleJsonResponseException e) {
                     Log.d(TAG, "failed to make API request because " + e.getContent());
@@ -352,14 +349,11 @@ public class MainActivity extends AppCompatActivity {
                 //ok
 
 //                for (int Type : face_parts(0).getType());
-//                for (int i=0; i < face_parts.size(); i++){
-                for (int i=0; i < 3 ; i++){
-//                    message += String.format("%d: (%d , %d )", Type, face_parts.getPositions().getX(), face_parts.getPositions.getY() );
-//                    Landmark tmp = face_parts.get(i); //重いらしい
-//                    message += String.format("%d: (%f , %f , %f)", tmp.getType(), tmp.getPosition().getX(), tmp.getPosition().getY(), tmp.getPosition().getZ());
-                    message += String.format("%d : )", face_parts.get(i).getType());
+                for (int i=0; i < face_parts.size(); i++){
+                    Landmark tmp = face_parts.get(i);
+                    message += String.format("%s: (%f , %f , %f)", tmp.getType(), tmp.getPosition().getX(), tmp.getPosition().getY(), tmp.getPosition().getZ());
                     message += "\n";
-//                    Log.d(TAG, "Landmark detected.");
+                    Log.d(TAG, "Landmark detected.");
                 }
             }
         } else {
