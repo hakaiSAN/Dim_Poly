@@ -51,6 +51,8 @@ import com.google.api.services.vision.v1.model.BatchAnnotateImagesResponse;
 import com.google.api.services.vision.v1.model.EntityAnnotation;
 import com.google.api.services.vision.v1.model.Feature;
 import com.google.api.services.vision.v1.model.Image;
+import com.google.api.services.vision.v1.model.FaceAnnotation;
+import com.google.api.services.vision.v1.model.Landmark;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -71,6 +73,8 @@ import android.os.Environment;
 import android.widget.LinearLayout.LayoutParams;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.lang.Object;
+import android.os.Parcelable;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -199,7 +203,7 @@ public class MainActivity extends AppCompatActivity {
         new AsyncTask<Object, Void, String>() {
             @Override
             protected String doInBackground(Object... params) {
-/*
+///*
                 try {
                     HttpTransport httpTransport = AndroidHttp.newCompatibleTransport();
                     JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
@@ -246,8 +250,13 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "created Cloud Vision request object, sending request");
 
                     BatchAnnotateImagesResponse response = annotateRequest.execute();
-                    return response.toString();
-//                    return convertResponseToString(response);
+//                    return response.toString(); //json file
+
+//                    return convertResponseToString(response); //default
+                    Log.d(TAG, "list make");
+                    String temp = extractionface(response);
+                    Log.d(TAG, "list return");
+                    return temp;
 
                 } catch (GoogleJsonResponseException e) {
                     Log.d(TAG, "failed to make API request because " + e.getContent());
@@ -256,18 +265,22 @@ public class MainActivity extends AppCompatActivity {
                             e.getMessage());
                 }
                 return "Cloud Vision API request failed. Check logs for details.";
-*/              return "";
+//*/              return "";
             }
 
             protected void onPostExecute(String result) {
-//                mImageDetails.setText(result);
+                mImageDetails.setText(result);
 
                 //json file saved
 //                saveFile("output.json", result);
 
                 //read the json file
                 //for debug
-                mImageDetails.setText(readFile("output.json"));
+//               mImageDetails.setText(readFile("output.json"));
+//                JSONObject jsonObject = new JSONObject(readFile("output.json"));
+//                String temp = extractionface(jsonObject);
+//               String temp = extractionface(result);
+//                mImageDetails.setText(temp);
 
 
                 /*
@@ -321,6 +334,33 @@ public class MainActivity extends AppCompatActivity {
             for (EntityAnnotation label : labels) {
                 message += String.format("%.3f: %s", label.getScore(), label.getDescription());
                 message += "\n";
+            }
+        } else {
+            message += "nothing";
+        }
+
+        return message;
+    }
+
+    private String extractionface(BatchAnnotateImagesResponse response) {
+        String message = "I found these things:\n\n";
+
+        List<FaceAnnotation> labels = response.getResponses().get(0).getFaceAnnotations();
+        if (labels != null) {
+            for (FaceAnnotation label : labels) {
+                List<Landmark> face_parts = label.getLandmarks();
+                //ok
+
+//                for (int Type : face_parts(0).getType());
+//                for (int i=0; i < face_parts.size(); i++){
+                for (int i=0; i < 3 ; i++){
+//                    message += String.format("%d: (%d , %d )", Type, face_parts.getPositions().getX(), face_parts.getPositions.getY() );
+//                    Landmark tmp = face_parts.get(i); //重いらしい
+//                    message += String.format("%d: (%f , %f , %f)", tmp.getType(), tmp.getPosition().getX(), tmp.getPosition().getY(), tmp.getPosition().getZ());
+                    message += String.format("%d : )", face_parts.get(i).getType());
+                    message += "\n";
+//                    Log.d(TAG, "Landmark detected.");
+                }
             }
         } else {
             message += "nothing";
