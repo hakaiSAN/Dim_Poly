@@ -17,8 +17,6 @@
 package com.google.sample.cloudvision;
 
 import android.Manifest;
-import android.app.ActionBar;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -34,7 +32,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,50 +43,42 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.vision.v1.Vision;
 import com.google.api.services.vision.v1.VisionRequestInitializer;
 import com.google.api.services.vision.v1.model.AnnotateImageRequest;
+import com.google.api.services.vision.v1.model.AnnotateImageResponse;
 import com.google.api.services.vision.v1.model.BatchAnnotateImagesRequest;
 import com.google.api.services.vision.v1.model.BatchAnnotateImagesResponse;
-import com.google.api.services.vision.v1.model.EntityAnnotation;
 import com.google.api.services.vision.v1.model.Feature;
 import com.google.api.services.vision.v1.model.Image;
 import com.google.api.services.vision.v1.model.FaceAnnotation;
 import com.google.api.services.vision.v1.model.Landmark;
+// import com.google.common.io.Resources;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.io.FileInputStream;
-import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import android.os.Environment;
-import android.widget.LinearLayout.LayoutParams;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.lang.Object;
-import android.os.Parcelable;
+import java.util.Objects;
+import android.content.res.Resources;
 
-public class MainActivity extends AppCompatActivity {
+public class Face_detection extends AppCompatActivity {
 
     // please your cloud vision api key
     private static final String CLOUD_VISION_API_KEY = "AIzaSyATW-YVZgslN8BOGvXhHrM6jSOtElsVFUE";
 
     public static final String FILE_NAME = "temp.jpg";
 
-    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String TAG = Face_detection.class.getSimpleName();
     private static final int GALLERY_IMAGE_REQUEST = 1;
     public static final int CAMERA_PERMISSIONS_REQUEST = 2;
     public static final int CAMERA_IMAGE_REQUEST = 3;
 
     private TextView mImageDetails;
     private ImageView mMainImage;
+
+    private static List<Landmark> face_parts = null;
+//    public static float[] face_parts_coordinate = new float[90];
+    public static float[][][] face_parts_coordinate = new float[6][5][3];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                AlertDialog.Builder builder = new AlertDialog.Builder(Face_detection.this);
                 builder
                         .setMessage(R.string.dialog_select_prompt)
                         .setPositiveButton(R.string.dialog_select_gallery, new DialogInterface.OnClickListener() {
@@ -156,10 +145,12 @@ public class MainActivity extends AppCompatActivity {
 
         if (requestCode == GALLERY_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
             uploadImage(data.getData());
+
         } else if (requestCode == CAMERA_IMAGE_REQUEST && resultCode == RESULT_OK) {
             uploadImage(Uri.fromFile(getCameraFile()));
         }
     }
+
 
     @Override
     public void onRequestPermissionsResult(
@@ -200,9 +191,9 @@ public class MainActivity extends AppCompatActivity {
         mImageDetails.setText(R.string.loading_message);
 
         // Do the real work in an async task, because we need to use the network anyway
-        new AsyncTask<Object, Void, String>() {
+        new AsyncTask<Object, Void, BatchAnnotateImagesResponse>() {
             @Override
-            protected String doInBackground(Object... params) {
+            protected BatchAnnotateImagesResponse doInBackground(Object... params) {
 ///*
                 try {
                     HttpTransport httpTransport = AndroidHttp.newCompatibleTransport();
@@ -235,13 +226,14 @@ public class MainActivity extends AppCompatActivity {
                             annotateImageRequest.setFeatures(new ArrayList<Feature>() {{
                                 Feature labelDetection = new Feature();
                                 labelDetection.setType("FACE_DETECTION");
-                                labelDetection.setMaxResults(10);
+                                labelDetection.setMaxResults(5);
                                 add(labelDetection);
                             }});
 
                             // Add the list of one thing to the request
                             add(annotateImageRequest);
-                        }});
+                        }
+                    });
 
                     Vision.Images.Annotate annotateRequest =
                             vision.images().annotate(batchAnnotateImagesRequest);
@@ -250,10 +242,10 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "created Cloud Vision request object, sending request");
 
                     BatchAnnotateImagesResponse response = annotateRequest.execute();
+                    return response;
 //                    return response.toString(); //json file
 
 //                    return convertResponseToString(response); //default
-                    return extractionface(response);
 
                 } catch (GoogleJsonResponseException e) {
                     Log.d(TAG, "failed to make API request because " + e.getContent());
@@ -261,44 +253,17 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "failed to make API request because of other IOException " +
                             e.getMessage());
                 }
-                return "Cloud Vision API request failed. Check logs for details.";
-//*/              return "";
+//                return "Cloud Vision API request failed. Check logs for details.";
+                return null;
             }
 
-            protected void onPostExecute(String result) {
-                mImageDetails.setText(result);
-
-                //json file saved
-//                saveFile("output.json", result);
-
-                //read the json file
-                //for debug
-//               mImageDetails.setText(readFile("output.json"));
-//                JSONObject jsonObject = new JSONObject(readFile("output.json"));
-//                String temp = extractionface(jsonObject);
-//               String temp = extractionface(result);
-//                mImageDetails.setText(temp);
-
-
-                /*
-                // ファイルの読み込み
-                InputStream input;
-                try {k
-                    // データ追加
-                    JSONArray jsonArray = jsonObject.getJSONArray("Employee");
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        JSONObject jsonOneRecord = jsonArray.getJSONObject(i);
-                        Log.v("mytag", jsonOneRecord.getString("Name"));
-                        Log.v("mytag", String.valueOf(jsonOneRecord.getInt("Age")));
-                    }
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                */
+            protected void onPostExecute(BatchAnnotateImagesResponse response) {
+                extractionface(response);
+                Intent intent = new Intent();
+                Log.d(TAG, "screen change");
+                intent.setClassName("com.google.sample.cloudvision", "com.google.sample.cloudvision.GL_model");
+                send_position(face_parts_coordinate,intent);
+                startActivity(intent);
             }
         }.execute();
     }
@@ -323,76 +288,129 @@ public class MainActivity extends AppCompatActivity {
         return Bitmap.createScaledBitmap(bitmap, resizedWidth, resizedHeight, false);
     }
 
-    private String convertResponseToString(BatchAnnotateImagesResponse response) {
-        String message = "I found these things:\n\n";
-
-        List<EntityAnnotation> labels = response.getResponses().get(0).getLabelAnnotations();
-        if (labels != null) {
-            for (EntityAnnotation label : labels) {
-                message += String.format("%.3f: %s", label.getScore(), label.getDescription());
-                message += "\n";
-            }
-        } else {
-            message += "nothing";
-        }
-
-        return message;
-    }
-
-    private String extractionface(BatchAnnotateImagesResponse response) {
-        String message = "I found these things:\n\n";
-
+    //特徴量検出リスト関数
+    private void extractionface(BatchAnnotateImagesResponse response) {
         List<FaceAnnotation> labels = response.getResponses().get(0).getFaceAnnotations();
+        face_parts = null; //new image
         if (labels != null) {
+            //一人のみ
             for (FaceAnnotation label : labels) {
-                List<Landmark> face_parts = label.getLandmarks();
-                //ok
-
-//                for (int Type : face_parts(0).getType());
-                for (int i=0; i < face_parts.size(); i++){
-                    Landmark tmp = face_parts.get(i);
-                    message += String.format("%s: (%f , %f , %f)", tmp.getType(), tmp.getPosition().getX(), tmp.getPosition().getY(), tmp.getPosition().getZ());
-                    message += "\n";
-                    Log.d(TAG, "Landmark detected.");
-                }
-            }
-        } else {
-            message += "nothing";
+                face_parts = label.getLandmarks();
+                Log.d(TAG, "Landmark detected.");
+           }
         }
-
-        return message;
-    }
-    // ファイルを保存
-    public void saveFile(String file, String str) {
-        FileOutputStream fileOutputstream = null;
-
-        try {
-            fileOutputstream = openFileOutput(file, Context.MODE_PRIVATE);
-            fileOutputstream.write(str.getBytes());
-        } catch (IOException e) {
-            e.printStackTrace();
+        for (Landmark face_part : face_parts) {
+            Mouthlist(face_part);
+            Noselist(face_part);
+            Lefteyebrowlist(face_part);
+            Righteyebrowlist(face_part);
+            Lefteyelist(face_part);
+            Righteyelist(face_part);
+            Log.d(TAG, "Landmark extracted.");
         }
-
+        Log.d(TAG, "Landmark extracted(null).");
+ //        return face_parts;
     }
 
-    // ファイルを読み出し
-    public String readFile(String file) {
-        FileInputStream fileInputStream;
-        String text = null;
-
-        try {
-            fileInputStream = openFileInput(file);
-            String lineBuffer = null;
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(fileInputStream, "UTF-8"));
-            while ((lineBuffer = reader.readLine()) != null) {
-                text = lineBuffer;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return text;
+    private void Mouthlist(Landmark face_part) {
+        Resources res = getResources();
+//       Log.d(TAG, "" + R.integer.MOUTH + R.integer.LEFT);
+        xyz_extraction_null(res.getInteger(R.integer.MOUTH), res.getInteger(R.integer.TOP));
+        xyz_extraction(face_part, "MOUTH_LEFT", res.getInteger(R.integer.MOUTH), res.getInteger(R.integer.LEFT));
+        xyz_extraction(face_part, "MOUTH_RIGHT", res.getInteger(R.integer.MOUTH), res.getInteger(R.integer.RIGHT));
+        xyz_extraction(face_part, "MOUTH_CENTER", res.getInteger(R.integer.MOUTH), res.getInteger(R.integer.FRONT));
+        xyz_extraction_null(res.getInteger(R.integer.MOUTH), res.getInteger(R.integer.BACK));
     }
+    private void Noselist(Landmark face_part) {
+        Resources res = getResources();
+        xyz_extraction(face_part, "FORHEAD_GLABELLA", res.getInteger(R.integer.NOSE), res.getInteger(R.integer.TOP));
+        xyz_extraction(face_part, "NOSE_BOTTOM_LEFT", res.getInteger(R.integer.NOSE), res.getInteger(R.integer.LEFT));
+        xyz_extraction(face_part, "NOSE_BOTTOM_RIGHT", res.getInteger(R.integer.NOSE), res.getInteger(R.integer.RIGHT));
+        xyz_extraction(face_part, "NOSE_TIP", res.getInteger(R.integer.NOSE), res.getInteger(R.integer.FRONT));
+        xyz_extraction_null(res.getInteger(R.integer.NOSE), res.getInteger(R.integer.BACK));
+    }
+    private void Lefteyebrowlist(Landmark face_part) {
+        Resources res = getResources();
+        xyz_extraction_null(res.getInteger(R.integer.LEFT_EYEBROW), res.getInteger(R.integer.TOP));
+        xyz_extraction(face_part, "LEFT_OF_LEFT_EYEBROW", res.getInteger(R.integer.LEFT_EYEBROW), res.getInteger(R.integer.LEFT));
+        xyz_extraction(face_part, "RIGHT_OF_LEFT_EYEBROW", res.getInteger(R.integer.LEFT_EYEBROW), res.getInteger(R.integer.RIGHT));
+        xyz_extraction(face_part, "LEFT_EYEBROW_UPPER_MIDPOINT", res.getInteger(R.integer.LEFT_EYEBROW), res.getInteger(R.integer.FRONT));
+        xyz_extraction_null(res.getInteger(R.integer.LEFT_EYEBROW), res.getInteger(R.integer.BACK));
+    }
+    private void Righteyebrowlist(Landmark face_part) {
+        Resources res = getResources();
+        xyz_extraction_null(res.getInteger(R.integer.RIGHT_EYEBROW), res.getInteger(R.integer.TOP));
+        xyz_extraction(face_part, "LEFT_OF_RIGHT_EYEBROW", res.getInteger(R.integer.RIGHT_EYEBROW), res.getInteger(R.integer.LEFT));
+        xyz_extraction(face_part, "RIGHT_OF_RIGHT_EYEBROW", res.getInteger(R.integer.RIGHT_EYEBROW), res.getInteger(R.integer.RIGHT));
+        xyz_extraction(face_part, "RIGHT_EYEBROW_UPPER_MIDPOINT", res.getInteger(R.integer.RIGHT_EYEBROW), res.getInteger(R.integer.FRONT));
+        xyz_extraction_null(res.getInteger(R.integer.RIGHT_EYEBROW), res.getInteger(R.integer.BACK));
+    }
+    private void Lefteyelist(Landmark face_part) {
+        Resources res = getResources();
+        xyz_extraction_null(res.getInteger(R.integer.LEFT_EYE), res.getInteger(R.integer.TOP));
+        xyz_extraction(face_part, "LEFT_EYE_LEFT_CORNER", res.getInteger(R.integer.LEFT_EYE), res.getInteger(R.integer.LEFT));
+        xyz_extraction(face_part, "LEFT_EYE_RIGHT_CORNER", res.getInteger(R.integer.LEFT_EYE), res.getInteger(R.integer.RIGHT));
+        xyz_extraction(face_part, "LEFT_EYE_TOP_BOUNDARY", res.getInteger(R.integer.LEFT_EYE), res.getInteger(R.integer.FRONT));
+        xyz_extraction(face_part, "LEFT_EYE_BOTTOM_BOUNDARY", res.getInteger(R.integer.LEFT_EYE), res.getInteger(R.integer.BACK));
+    }
+    private void Righteyelist(Landmark face_part) {
+        Resources res = getResources();
+        xyz_extraction_null(res.getInteger(R.integer.RIGHT_EYE), res.getInteger(R.integer.TOP));
+        xyz_extraction(face_part, "RIGHT_EYE_LEFT_CORNER", res.getInteger(R.integer.RIGHT_EYE), res.getInteger(R.integer.LEFT));
+        xyz_extraction(face_part, "RIGHT_EYE_RIGHT_CORNER", res.getInteger(R.integer.RIGHT_EYE), res.getInteger(R.integer.RIGHT));
+        xyz_extraction(face_part, "RIGHT_EYE_TOP_BOUNDARY", res.getInteger(R.integer.RIGHT_EYE), res.getInteger(R.integer.FRONT));
+        xyz_extraction(face_part, "RIGHT_EYE_BOTTOM_BOUNDARY", res.getInteger(R.integer.RIGHT_EYE), res.getInteger(R.integer.BACK));
+    }
+
+    private void xyz_extraction(Landmark face_part, String type, int parts, int position){
+        String tmp = face_part.getType();
+//        Log.d(TAG, "xyz_extract." + face_part.getType());
+        if (type.equals(tmp)) {
+//           int parts_position = parts * 15 + position * 3;
+//           Log.d(TAG, "x axis." + parts_position);
+            face_parts_coordinate[parts][position][0] = face_part.getPosition().getX(); //parts position x
+            face_parts_coordinate[parts][position][1] = face_part.getPosition().getY(); //parts position y
+            face_parts_coordinate[parts][position][2] = face_part.getPosition().getZ(); //parts position z
+       }
+    }
+    private void xyz_extraction_null(int parts, int position){
+            face_parts_coordinate[parts][position][0] = 0.f; //parts position x
+            face_parts_coordinate[parts][position][1] = 0.f; //parts position y
+            face_parts_coordinate[parts][position][2] = 0.f; //parts position z
+    }
+
+    private void send_position(float[][][] face_parts_coordinate, Intent intent){
+        intent.putExtra("MOUTH_TOP", face_parts_coordinate[0][0]);
+        intent.putExtra("MOUTH_LEFT", face_parts_coordinate[0][1]);
+        intent.putExtra("MOUTH_RIGHT", face_parts_coordinate[0][2]);
+        intent.putExtra("MOUTH_FRONT", face_parts_coordinate[0][3]);
+        intent.putExtra("MOUTH_BACK", face_parts_coordinate[0][4]);
+        intent.putExtra("NOSE_TOP", face_parts_coordinate[1][0]);
+        intent.putExtra("NOSE_LEFT", face_parts_coordinate[1][1]);
+        intent.putExtra("NOSE_RIGHT", face_parts_coordinate[1][2]);
+        intent.putExtra("NOSE_FRONT", face_parts_coordinate[1][3]);
+        intent.putExtra("NOSE_BACK", face_parts_coordinate[1][4]);
+        intent.putExtra("LEFT_EYEBROW_TOP", face_parts_coordinate[2][0]);
+        intent.putExtra("LEFT_EYEBROW_LEFT", face_parts_coordinate[2][1]);
+        intent.putExtra("LEFT_EYEBROW_RIGHT", face_parts_coordinate[2][2]);
+        intent.putExtra("LEFT_EYEBROW_FRONT", face_parts_coordinate[2][3]);
+        intent.putExtra("LEFT_EYEBROW_BACK", face_parts_coordinate[2][4]);
+        intent.putExtra("RIGHT_EYEBROW_TOP", face_parts_coordinate[3][0]);
+        intent.putExtra("RIGHT_EYEBROW_LEFT", face_parts_coordinate[3][1]);
+        intent.putExtra("RIGHT_EYEBROW_RIGHT", face_parts_coordinate[3][2]);
+        intent.putExtra("RIGHT_EYEBROW_FRONT", face_parts_coordinate[3][3]);
+        intent.putExtra("RIGHT_EYEBROW_BACK", face_parts_coordinate[3][4]);
+        intent.putExtra("LEFT_EYE_TOP", face_parts_coordinate[4][0]);
+        intent.putExtra("LEFT_EYE_LEFT", face_parts_coordinate[4][1]);
+        intent.putExtra("LEFT_EYE_RIGHT", face_parts_coordinate[4][2]);
+        intent.putExtra("LEFT_EYE_FRONT", face_parts_coordinate[4][3]);
+        intent.putExtra("LEFT_EYE_BACK", face_parts_coordinate[4][4]);
+        intent.putExtra("RIGHT_EYE_TOP", face_parts_coordinate[5][0]);
+        intent.putExtra("RIGHT_EYE_LEFT", face_parts_coordinate[5][1]);
+        intent.putExtra("RIGHT_EYE_RIGHT", face_parts_coordinate[5][2]);
+        intent.putExtra("RIGHT_EYE_FRONT", face_parts_coordinate[5][3]);
+        intent.putExtra("RIGHT_EYE_BACK", face_parts_coordinate[5][4]);
+        Log.d(TAG, "Send face parts coordinate");
+    }
+
 }
-
-

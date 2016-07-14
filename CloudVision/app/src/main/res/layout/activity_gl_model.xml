@@ -1,0 +1,70 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context=".Face_detection">
+
+    <TextView
+        android:id="@+id/z_label"
+        android:layout_width="@dimen/seek_bar_size"
+        android:layout_height="@dimen/seek_bar_size"
+        android:layout_alignParentBottom="true"
+        android:gravity="center"
+        android:text="@string/z_label"
+        android:textSize="@dimen/label_size"/>
+
+    <SeekBar
+        android:id="@+id/rotation_bar_z"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/seek_bar_size"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_toEndOf="@id/z_label"
+        android:max="360"/>
+
+    <TextView
+        android:id="@+id/y_label"
+        android:layout_width="@dimen/seek_bar_size"
+        android:layout_height="@dimen/seek_bar_size"
+        android:layout_above="@id/z_label"
+        android:gravity="center"
+        android:text="@string/y_label"
+        android:textSize="@dimen/label_size"/>
+
+    <SeekBar
+        android:id="@+id/rotation_bar_y"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/seek_bar_size"
+        android:layout_above="@id/rotation_bar_z"
+        android:layout_alignParentEnd="true"
+        android:layout_toEndOf="@id/y_label"
+        android:max="360"/>
+
+    <TextView
+        android:id="@+id/x_label"
+        android:layout_width="@dimen/seek_bar_size"
+        android:layout_height="@dimen/seek_bar_size"
+        android:layout_above="@id/y_label"
+        android:gravity="center"
+        android:text="@string/x_label"
+        android:textSize="@dimen/label_size"/>
+
+    <SeekBar
+        android:id="@+id/rotation_bar_x"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/seek_bar_size"
+        android:max="360"
+        android:layout_below="@+id/glview"
+        android:layout_toEndOf="@+id/x_label"
+        android:layout_alignParentEnd="true" />
+
+    <android.opengl.GLSurfaceView
+        android:id="@+id/glview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/x_label"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+
+</RelativeLayout>
