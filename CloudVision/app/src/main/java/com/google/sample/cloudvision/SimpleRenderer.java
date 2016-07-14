@@ -52,7 +52,7 @@ public class SimpleRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        gl.glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
+//        gl.glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
 //        gl.glCullFace(GL10.GL_BACK);
         gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
 

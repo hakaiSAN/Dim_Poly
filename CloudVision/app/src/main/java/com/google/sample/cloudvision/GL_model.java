@@ -170,27 +170,32 @@ public class GL_model extends AppCompatActivity implements SeekBar.OnSeekBarChan
                 face_parts_coordinate_4[i][j][3] = w;
                 */
                 face_parts_position[i][j][0] = x + 0.5f * w;
-                face_parts_position[i][j][1] = y + 0.5f + w;
+                face_parts_position[i][j][1] = y + 0.5f * w;
                 face_parts_position[i][j][2] = z + 0.5f * w;
             }
         }
     }
 
     private void setdraw(SimpleRenderer renderer, float[][][] parts){
-            renderer.addObj(new Mouth(parts, 0, -0.3f, 0));
-//            renderer.addObj(new Nose(parts, 0, 0, 0));
-//            renderer.addObj(new Eyebrow(parts, getResources().getInteger(R.integer.LEFT_EYEBROW), 0.4f, 0.3f, 0));
-//            renderer.addObj(new Eyebrow(parts, getResources().getInteger(R.integer.RIGHT_EYEBROW), -0.4f, 0.3f, 0));
-//            renderer.addObj(new Eye(parts, getResources().getInteger(R.integer.LEFT_EYE), 0.3f, 0.3f, 0));
-//            renderer.addObj(new Eye(parts, getResources().getInteger(R.integer.RIGHT_EYE), -0.3f, 0.3f, 0));
+//        renderer.addObj(new Mouth(parts, 0, -0.3f, 0));
+        renderer.addObj(new Mouth(parts, 0, 0, 0));
+//        renderer.addObj(new Nose(parts, 0, 0, 0));
+//        renderer.addObj(new Eyebrow(parts, getResources().getInteger(R.integer.LEFT_EYEBROW), 0.4f, 0.3f, 0));
+        renderer.addObj(new Eyebrow(parts, getResources().getInteger(R.integer.LEFT_EYEBROW), 0, 0, 0));
+//        renderer.addObj(new Eyebrow(parts, getResources().getInteger(R.integer.RIGHT_EYEBROW), -0.4f, 0.3f, 0));
+        renderer.addObj(new Eyebrow(parts, getResources().getInteger(R.integer.RIGHT_EYEBROW), 0, 0, 0));
+//        renderer.addObj(new Eye(parts, getResources().getInteger(R.integer.LEFT_EYE), 0.3f, 0.3f, 0));
+        renderer.addObj(new Eye(parts, getResources().getInteger(R.integer.LEFT_EYE), 0, 0, 0));
+//        renderer.addObj(new Eye(parts, getResources().getInteger(R.integer.RIGHT_EYE), -0.3f, 0.3f, 0));
+        renderer.addObj(new Eye(parts, getResources().getInteger(R.integer.RIGHT_EYE), 0, 0, 0));
     }
     private void setline(SimpleRenderer renderer, float[][][] parts1, float [][][] parts2){
-//            renderer.addObj(new Mouthline(parts1, parts2, 0, -0.3f, 0));
-//            renderer.addObj(new Noseline(parts1, parts2, 0, 0, 0));
-//            renderer.addObj(new Eyebrowline(parts1, parts2, getResources().getInteger(R.integer.LEFT_EYEBROW), 0.4f, 0.3f, 0));
-//            renderer.addObj(new Eyebrowline(parts1, parts2, getResources().getInteger(R.integer.RIGHT_EYEBROW), -0.4f, 0.3f, 0));
-//            renderer.addObj(new Eyeline(parts1, parts2, getResources().getInteger(R.integer.LEFT_EYE), 0.3f, 0.3f, 0));
-//            renderer.addObj(new Eyeline(parts1, parts2, getResources().getInteger(R.integer.RIGHT_EYE), -0.3f, 0.3f, 0));
+            renderer.addObj(new Mouthline(parts1, parts2, 0, -0.3f, 0));
+            renderer.addObj(new Noseline(parts1, parts2, 0, 0, 0));
+            renderer.addObj(new Eyebrowline(parts1, parts2, getResources().getInteger(R.integer.LEFT_EYEBROW), 0.4f, 0.3f, 0));
+            renderer.addObj(new Eyebrowline(parts1, parts2, getResources().getInteger(R.integer.RIGHT_EYEBROW), -0.4f, 0.3f, 0));
+            renderer.addObj(new Eyeline(parts1, parts2, getResources().getInteger(R.integer.LEFT_EYE), 0.3f, 0.3f, 0));
+            renderer.addObj(new Eyeline(parts1, parts2, getResources().getInteger(R.integer.RIGHT_EYE), -0.3f, 0.3f, 0));
     }
 
 }

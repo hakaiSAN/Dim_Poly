@@ -49,31 +49,15 @@ public class Mouthline implements SimpleRenderer.Obj {
     public void draw(GL10 gl) {
         gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
         gl.glVertexPointer(3, GL10.GL_FLOAT, 0, vbuf);
-
         // left
-        gl.glLineWidth(4);    //　描画サイズを決める
+        for (int i = 0; i < 14; i = i + 2) {
+            gl.glLineWidth(4);    //　描画サイズを決める
+//            gl.glColor4f(1.0f,0.0f,0.0f, 1.0f);
 //        gl.glColorPointer(4,GL10.GL_FIXED, 0, c);
-//        gl.glColor4f(1.0f, 0.f, 0.f, 0.f);
-        gl.glDrawArrays(GL10.GL_LINES, 0, 2);
-        // right
-        gl.glLineWidth(4);    //　描画サイズを決める
-        gl.glDrawArrays(GL10.GL_LINES, 2, 2);
-        // left
-        gl.glLineWidth(4);    //　描画サイズを決める
-        gl.glDrawArrays(GL10.GL_LINES, 4, 2);
-        // right
-        gl.glLineWidth(4);    //　描画サイズを決める
-        gl.glDrawArrays(GL10.GL_LINES, 6, 2);
-        // center
-        gl.glLineWidth(4);    //　描画サイズを決める
-        gl.glDrawArrays(GL10.GL_LINES, 8, 2);
-        // center
-        gl.glLineWidth(4);    //　描画サイズを決める
-        gl.glDrawArrays(GL10.GL_LINES, 10, 2);
-        // center
-        gl.glLineWidth(4);    //　描画サイズを決める
-        gl.glDrawArrays(GL10.GL_LINES, 12, 2);
+        gl.glDrawArrays(GL10.GL_LINES, i, 2);
+        }
     }
+
     @Override
     public float getX() {
         return x;
