@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Cloud Vision Android Sample
 
 So you want to use the Google Cloud Vision API from Android?
@@ -93,3 +94,10 @@ API with an image picked from your device's gallery.
 [billing]: https://console.cloud.google.com/billing?project=_
 [enable-vision]: https://console.cloud.google.com/apis/api/vision.googleapis.com/overview?project=_
 [api-key]: https://console.cloud.google.com/apis/credentials?project=_
+=======
+# Dimension Polygon
+
+Cloud-vision API sampleを元に制作しました．
+OpenGL部分が未だにバグっています．
+OpenGLの扱いが困ってます；；
+>>>>>>> 4dimension
